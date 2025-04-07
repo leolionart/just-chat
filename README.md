@@ -45,17 +45,17 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 
 ```bash
 # Using npm
-npm install just-chat
+npm install @kieng/just-chat
 
 # Using pnpm
-pnpm add just-chat
+pnpm add @kieng/just-chat
 
 # Using yarn
-yarn add just-chat
+yarn add @kieng/just-chat
 ```
 
 ```javascript
-import { initChatPopup } from 'just-chat';
+import { initChatPopup } from '@kieng/just-chat';
 
 initChatPopup({
   webhookUrl: 'https://your-backend.com/chat',
@@ -164,7 +164,7 @@ Expected response format:
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/just-chat.git
+git clone https://github.com/draphonix/just-chat.git
 cd just-chat
 ```
 
