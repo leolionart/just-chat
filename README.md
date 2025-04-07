@@ -23,7 +23,7 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 
 ```html
 <!-- Latest version -->
-<script src="https://cdn.jsdelivr.net/npm/just-chat/dist/just-chat.umd.js"
+<script src="https://cdn.jsdelivr.net/npm/@kieng/just-chat/dist/just-chat.umd.js"
         data-webhook-url="https://your-backend.com/chat"
         data-theme-color="#1E40AF"
         data-position="bottom-right"
@@ -35,7 +35,7 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 </script>
 
 <!-- Specific version -->
-<script src="https://cdn.jsdelivr.net/npm/just-chat@0.1.0/dist/just-chat.umd.js"
+<script src="https://cdn.jsdelivr.net/npm/@kieng/just-chat@0.1.2/dist/just-chat.umd.js"
         data-webhook-url="https://your-backend.com/chat"
         defer>
 </script>
