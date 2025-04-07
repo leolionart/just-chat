@@ -1,10 +1,10 @@
 {
-  "name": "universal-chat-popup",
+  "name": "just-chat",
   "private": false,
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/universal-chat-popup.umd.js",
-  "module": "dist/universal-chat-popup.es.js",
+  "main": "dist/just-chat.umd.js",
+  "module": "dist/just-chat.es.js",
   "types": "dist/main.d.ts",
   "files": [
     "dist"
@@ -14,7 +14,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "mock-server": "node mock-server.js",
-    "start": "pnpm build && node mock-server.js"
+    "start": "pnpm build && node mock-server.js && vite"
   },
   "devDependencies": {
     "typescript": "^5.2.2",
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/universal-chat-popup.git"
+    "url": "git+https://github.com/draphonix/just-chat.git"
   },
   "author": "",
   "license": "MIT"

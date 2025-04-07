@@ -23,7 +23,7 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 
 ```html
 <!-- Latest version -->
-<script src="https://cdn.jsdelivr.net/npm/universal-chat-popup/dist/universal-chat-popup.umd.js"
+<script src="https://cdn.jsdelivr.net/npm/just-chat/dist/just-chat.umd.js"
         data-webhook-url="https://your-backend.com/chat"
         data-theme-color="#1E40AF"
         data-position="bottom-right"
@@ -35,7 +35,7 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 </script>
 
 <!-- Specific version -->
-<script src="https://cdn.jsdelivr.net/npm/universal-chat-popup@0.1.0/dist/universal-chat-popup.umd.js"
+<script src="https://cdn.jsdelivr.net/npm/just-chat@0.1.0/dist/just-chat.umd.js"
         data-webhook-url="https://your-backend.com/chat"
         defer>
 </script>
@@ -45,17 +45,17 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 
 ```bash
 # Using npm
-npm install universal-chat-popup
+npm install just-chat
 
 # Using pnpm
-pnpm add universal-chat-popup
+pnpm add just-chat
 
 # Using yarn
-yarn add universal-chat-popup
+yarn add just-chat
 ```
 
 ```javascript
-import { initChatPopup } from 'universal-chat-popup';
+import { initChatPopup } from 'just-chat';
 
 initChatPopup({
   webhookUrl: 'https://your-backend.com/chat',
@@ -164,8 +164,8 @@ Expected response format:
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/universal-chat-popup.git
-cd universal-chat-popup
+git clone https://github.com/yourusername/just-chat.git
+cd just-chat
 ```
 
 2. Install dependencies
@@ -201,7 +201,7 @@ pnpm start
 ### Project Structure
 
 ```
-universal-chat-popup/
+just-chat/
 ├── src/
 │   ├── components/        # Web Components
 │   │   ├── base-component.ts
@@ -231,7 +231,7 @@ MIT
 
 ## Support
 
-- GitHub Issues: [Report a bug](https://github.com/yourusername/universal-chat-popup/issues)
+- GitHub Issues: [Report a bug](https://github.com/yourusername/just-chat/issues)
 - Email: your.email@example.com
 
 ## Credits

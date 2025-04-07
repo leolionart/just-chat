@@ -5,7 +5,7 @@ export default defineConfig({
     lib: {
       entry: 'src/main.ts',
       name: 'UniversalChatPopup',
-      fileName: (format) => `universal-chat-popup.${format}.js`
+      fileName: (format) => `just-chat.${format}.js`
     },
     rollupOptions: {
       output: {
