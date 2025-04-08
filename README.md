@@ -231,8 +231,8 @@ MIT
 
 ## Support
 
-- GitHub Issues: [Report a bug](https://github.com/yourusername/just-chat/issues)
-- Email: your.email@example.com
+- GitHub Issues: [Report a bug](https://github.com/draphonix/just-chat/issues)
+- Email: hoang@kieng.io.vn
 
 ## Credits
 
