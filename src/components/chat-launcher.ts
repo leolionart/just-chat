@@ -34,7 +34,19 @@ export class ChatLauncher extends BaseComponent {
     this.render();
   }
 
+  static get observedAttributes() {
+    return ['theme-color'];
+  }
+
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if (oldValue !== newValue && name === 'theme-color') {
+      this.render();
+    }
+  }
+
   protected render(): void {
+    this.shadow.innerHTML = '';
+    
     const launcher = this.createElement('button', 'launcher');
     launcher.innerHTML = this.getChatIcon();
     launcher.addEventListener('click', () => this.toggleChat());

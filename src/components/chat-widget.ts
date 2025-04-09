@@ -30,7 +30,7 @@ export class ChatWidget extends BaseComponent {
     }
 
     .chat-widget-container {
-      --theme-color: ${this.getConfig().themeColor};
+      --theme-color: ${this.getAttribute('theme-color') || '#1E40AF'};
     }
   `;
 
@@ -50,6 +50,7 @@ export class ChatWidget extends BaseComponent {
     // Create chat window
     const window = document.createElement('chat-window');
     window.setAttribute('webhook-url', config.webhookUrl);
+    window.setAttribute('theme-color', config.themeColor);
     window.setAttribute('title', config.title);
     window.setAttribute('welcome-message', config.welcomeMessage);
     window.setAttribute('history-enabled', String(config.historyEnabled));
@@ -59,6 +60,7 @@ export class ChatWidget extends BaseComponent {
     
     // Create launcher
     const launcher = document.createElement('chat-launcher');
+    launcher.setAttribute('theme-color', config.themeColor);
     launcher.addEventListener('toggleChat', (e: Event) => {
       const { isOpen } = (e as CustomEvent).detail;
       this.handleToggleChat(isOpen);
@@ -87,10 +89,31 @@ export class ChatWidget extends BaseComponent {
     };
   }
 
-  attributeChangedCallback(_name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (oldValue !== newValue) {
-      const styles = this.styles;
-      this.addStyles(styles);
+      // Update styles for theme color changes
+      if (name === 'theme-color') {
+        this.addStyles(`
+          :host {
+            position: fixed;
+            z-index: 9999;
+            bottom: 20px;
+            right: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+
+          :host([position="bottom-left"]) {
+            right: auto;
+            left: 20px;
+          }
+
+          .chat-widget-container {
+            --theme-color: ${newValue || '#1E40AF'};
+          }
+        `);
+      }
+      
+      // Re-render to update all attributes
       this.render();
     }
   }

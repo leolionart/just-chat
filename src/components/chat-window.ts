@@ -3,6 +3,10 @@ import { StorageService, ChatMessage } from '../services/storage';
 import { WebhookService } from '../services/webhook';
 
 export class ChatWindow extends BaseComponent {
+  static get observedAttributes() {
+    return ['webhook-url', 'title', 'welcome-message', 'history-enabled', 'history-clear-button', 'position'];
+  }
+
   private styles = `
     .chat-window {
       position: absolute;
@@ -165,6 +169,7 @@ export class ChatWindow extends BaseComponent {
   private storage: StorageService;
   private webhook: WebhookService;
   private sessionId: string;
+  private hasShownWelcomeMessage = false;
 
   constructor() {
     super();
@@ -238,12 +243,14 @@ export class ChatWindow extends BaseComponent {
     window.appendChild(messages);
     window.appendChild(inputArea);
     
+    this.shadow.innerHTML = '';
     this.shadow.appendChild(window);
 
-    // Show welcome message if provided
+    // Show welcome message only if it hasn't been shown yet and the chat is being opened
     const welcomeMessage = this.getAttribute('welcome-message');
-    if (welcomeMessage) {
+    if (welcomeMessage && !this.hasShownWelcomeMessage && this.isOpen) {
       this.addSystemMessage(welcomeMessage);
+      this.hasShownWelcomeMessage = true;
     }
   }
 
@@ -349,6 +356,8 @@ export class ChatWindow extends BaseComponent {
       if (messages) {
         messages.innerHTML = '';
       }
+      // Reset welcome message flag when history is cleared
+      this.hasShownWelcomeMessage = false;
     }
   }
 
@@ -376,6 +385,15 @@ export class ChatWindow extends BaseComponent {
   public setOpen(open: boolean) {
     this.isOpen = open;
     this.updateVisibility();
+    
+    // If opening the chat and no messages exist, show welcome message
+    if (open && !this.hasShownWelcomeMessage) {
+      const welcomeMessage = this.getAttribute('welcome-message');
+      if (welcomeMessage) {
+        this.addSystemMessage(welcomeMessage);
+        this.hasShownWelcomeMessage = true;
+      }
+    }
   }
 
   private updateVisibility() {
@@ -389,15 +407,14 @@ export class ChatWindow extends BaseComponent {
     }
   }
 
-  static get observedAttributes() {
-    return ['webhook-url', 'title', 'welcome-message', 'history-enabled', 'history-clear-button'];
-  }
-
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (oldValue !== newValue && name === 'webhook-url') {
-      const webhookUrl = newValue || '';
-      this.storage = new StorageService(webhookUrl);
-      this.webhook = new WebhookService(webhookUrl);
+    if (oldValue !== newValue) {
+      if (name === 'webhook-url') {
+        const webhookUrl = newValue || '';
+        this.storage = new StorageService(webhookUrl);
+        this.webhook = new WebhookService(webhookUrl);
+      }
+      // Re-render to update all attributes
       this.render();
     }
   }
