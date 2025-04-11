@@ -1,4 +1,8 @@
 import { BaseComponent } from './base-component';
+import { marked } from 'marked';
+
+// Configure marked for basic parsing
+marked.setOptions({});
 import { StorageService, ChatMessage } from '../services/storage';
 import { WebhookService } from '../services/webhook';
 
@@ -125,11 +129,99 @@ export class ChatWindow extends BaseComponent {
       border-bottom-right-radius: 4px;
     }
 
-    .message.backend {
+    .message.bot {
+      background-color: #f0f0f0;
       align-self: flex-start;
-      background-color: white;
-      color: #333;
-      border-bottom-left-radius: 4px;
+      border-bottom-left-radius: 0;
+    }
+
+    /* Markdown styles */
+    .message.bot h1,
+    .message.bot h2,
+    .message.bot h3,
+    .message.bot h4,
+    .message.bot h5,
+    .message.bot h6 {
+      margin: 8px 0;
+      line-height: 1.2;
+      font-size: 1em;
+    }
+
+    .message.bot h1 { font-size: 1.4em; }
+    .message.bot h2 { font-size: 1.3em; }
+    .message.bot h3 { font-size: 1.2em; }
+
+    .message.bot p {
+      margin: 8px 0;
+    }
+
+    .message.bot ul,
+    .message.bot ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .message.bot code {
+      background-color: #e8e8e8;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    .message.bot pre {
+      background-color: #e8e8e8;
+      padding: 8px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+
+    .message.bot pre code {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .message.bot a {
+      color: var(--theme-color, #1E40AF);
+      text-decoration: none;
+    }
+
+    .message.bot a:hover {
+      text-decoration: underline;
+    }
+
+    .message.bot blockquote {
+      border-left: 4px solid #ddd;
+      margin: 8px 0;
+      padding-left: 16px;
+      color: #666;
+    }
+
+    .message.bot table {
+      border-collapse: collapse;
+      margin: 8px 0;
+      width: 100%;
+      font-size: 0.9em;
+    }
+
+    .message.bot th,
+    .message.bot td {
+      border: 1px solid #ddd;
+      padding: 6px;
+    }
+
+    .message.bot th {
+      background-color: #e8e8e8;
+      font-weight: 600;
+    }
+
+    .message.bot img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 8px 0;
     }
 
     .message.system {
@@ -355,12 +447,22 @@ export class ChatWindow extends BaseComponent {
     }
   }
 
+  private createMessageElement(message: string, isUser: boolean = false): HTMLElement {
+    const messageEl = this.createElement('div', `message ${isUser ? 'user' : 'bot'}`);
+    // Parse markdown for bot messages only
+    if (!isUser) {
+      messageEl.innerHTML = marked.parse(message) as string;
+    } else {
+      messageEl.textContent = message;
+    }
+    return messageEl;
+  }
+
   private renderMessage(message: ChatMessage, container?: HTMLElement) {
     const messages = container || this.shadow.querySelector('.messages');
     if (!messages) return;
 
-    const messageEl = this.createElement('div', `message ${message.sender}`);
-    messageEl.textContent = message.text;
+    const messageEl = this.createMessageElement(message.text, message.sender === 'user');
     messageEl.dataset.messageId = message.id;
 
     if (message.sender === 'user' && message.status) {

@@ -1,7 +1,7 @@
 {
   "name": "@leolionart/just-chat",
   "private": false,
-  "version": "0.1.7",
+  "version": "0.1.8",
   "type": "module",
   "main": "dist/just-chat.umd.js",
   "module": "dist/just-chat.es.js",
@@ -17,10 +17,10 @@
     "start": "pnpm build && node mock-server.js && vite"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
   },
   "publishConfig": {
     "access": "public"
@@ -36,5 +36,8 @@
     "url": "git+https://github.com/leolionart/just-chat.git"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "marked": "^15.0.8"
+  }
 }
