@@ -425,9 +425,14 @@ export class ChatWindow extends BaseComponent {
     this.dispatchEvent(new CustomEvent('close'));
   }
 
-  public setOpen(open: boolean) {
+  public setOpen(open: boolean, fromUserClick = false) {
     this.isOpen = open;
     this.updateVisibility();
+    
+    if (open && fromUserClick) {
+      // Focus immediately when opened from user click
+      this.focusInput();
+    }
     
     // If opening the chat and no messages exist, show welcome message
     if (open && !this.hasShownWelcomeMessage) {
@@ -444,16 +449,16 @@ export class ChatWindow extends BaseComponent {
     if (window) {
       if (this.isOpen) {
         window.classList.add('open');
-        // Auto-focus the input field when opening
-        setTimeout(() => {
-          const input = this.shadow.querySelector('.input-area input') as HTMLInputElement;
-          if (input) {
-            input.focus();
-          }
-        }, 300); // Wait for the animation to complete
       } else {
         window.classList.remove('open');
       }
+    }
+  }
+
+  private focusInput() {
+    const input = this.shadow.querySelector('.input-area input') as HTMLInputElement;
+    if (input) {
+      input.focus();
     }
   }
 

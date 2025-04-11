@@ -77,7 +77,8 @@ export class ChatWidget extends BaseComponent {
     console.log('Handling toggle chat:', isOpen);
     if (this.window) {
       console.log('Chat window found, setting open state');
-      (this.window as any).setOpen(isOpen);
+      const chatWindow = this.window as any;
+      chatWindow.setOpen(isOpen, true); // true indicates it's from user click
     } else {
       console.log('Chat window not found');
     }
