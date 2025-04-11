@@ -11,7 +11,7 @@ export interface WebhookRequest {
 }
 
 export interface WebhookResponse {
-  response: string;
+  output: string;
 }
 
 export class WebhookService {
@@ -46,7 +46,15 @@ export class WebhookService {
 
       const data = await response.json();
       this.controller = null;
-      return data;
+      // Handle array response from webhook
+      if (Array.isArray(data) && data.length > 0) {
+        return { output: data[0].output };
+      }
+      // Handle direct object response
+      if (data.output) {
+        return { output: data.output };
+      }
+      throw new Error('Invalid response format from webhook');
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request cancelled');

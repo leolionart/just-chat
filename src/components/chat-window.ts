@@ -9,11 +9,13 @@ export class ChatWindow extends BaseComponent {
 
   private styles = `
     .chat-window {
-      position: absolute;
+      position: fixed;
       bottom: 80px;
       right: 0;
-      width: 320px;
-      height: 480px;
+      width: 100%;
+      max-width: 420px;
+      height: calc(100vh - 100px);
+      max-height: 600px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -24,6 +26,25 @@ export class ChatWindow extends BaseComponent {
       transform: translateY(20px);
       transition: opacity 0.2s ease, transform 0.2s ease;
       pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      .chat-window {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100vh;
+        max-height: none;
+        border-radius: 0;
+        transform: translateY(100%);
+      }
+
+      .chat-window.open {
+        transform: translateY(0);
+      }
     }
 
     .chat-window.open {
@@ -77,27 +98,31 @@ export class ChatWindow extends BaseComponent {
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
+      background-color: #f7f7f8;
     }
 
     .message {
-      max-width: 80%;
-      padding: 8px 12px;
-      border-radius: 12px;
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 16px;
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.5;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .message.user {
       align-self: flex-end;
       background-color: var(--theme-color, #1E40AF);
       color: white;
+      border-bottom-right-radius: 4px;
     }
 
     .message.backend {
       align-self: flex-start;
-      background-color: #f0f0f0;
+      background-color: white;
       color: #333;
+      border-bottom-left-radius: 4px;
     }
 
     .message.system {
@@ -131,17 +156,28 @@ export class ChatWindow extends BaseComponent {
 
     .input-area {
       padding: 16px;
+      background-color: white;
       border-top: 1px solid #eee;
       display: flex;
       gap: 8px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     }
 
     .input-area input {
       flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 20px;
+      padding: 12px 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 24px;
       font-size: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-area input:focus {
+      outline: none;
+      border-color: var(--theme-color, #1E40AF);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .input-area button {
@@ -290,7 +326,7 @@ export class ChatWindow extends BaseComponent {
       // Add response message
       const responseMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        text: response.response,
+        text: response.output,
         sender: 'backend',
         timestamp: new Date().toISOString()
       };
