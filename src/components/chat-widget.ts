@@ -62,7 +62,9 @@ export class ChatWidget extends BaseComponent {
     const launcher = document.createElement('chat-launcher');
     launcher.setAttribute('theme-color', config.themeColor);
     launcher.addEventListener('toggleChat', (e: Event) => {
+      console.log('Toggle chat event received');
       const { isOpen } = (e as CustomEvent).detail;
+      console.log('Toggle state:', isOpen);
       this.handleToggleChat(isOpen);
     });
     
@@ -72,8 +74,12 @@ export class ChatWidget extends BaseComponent {
   }
 
   private handleToggleChat(isOpen: boolean) {
+    console.log('Handling toggle chat:', isOpen);
     if (this.window) {
+      console.log('Chat window found, setting open state');
       (this.window as any).setOpen(isOpen);
+    } else {
+      console.log('Chat window not found');
     }
   }
 

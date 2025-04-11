@@ -75,7 +75,7 @@ export class ChatWindow extends BaseComponent {
 
     .header-actions {
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
 
     .header button {
@@ -83,9 +83,16 @@ export class ChatWindow extends BaseComponent {
       border: none;
       color: white;
       cursor: pointer;
-      padding: 4px;
-      opacity: 0.8;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      opacity: 0.9;
       transition: opacity 0.2s;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     .header button:hover {
@@ -227,7 +234,7 @@ export class ChatWindow extends BaseComponent {
     
     if (this.getAttribute('history-enabled') !== 'false' && 
         this.getAttribute('history-clear-button') !== 'false') {
-      const clearBtn = this.createElement('button', '', '🗑️');
+      const clearBtn = this.createElement('button', '', '⌫');
       clearBtn.title = 'Clear history';
       clearBtn.addEventListener('click', () => this.clearHistory());
       headerActions.appendChild(clearBtn);
@@ -437,6 +444,13 @@ export class ChatWindow extends BaseComponent {
     if (window) {
       if (this.isOpen) {
         window.classList.add('open');
+        // Auto-focus the input field when opening
+        setTimeout(() => {
+          const input = this.shadow.querySelector('.input-area input') as HTMLInputElement;
+          if (input) {
+            input.focus();
+          }
+        }, 300); // Wait for the animation to complete
       } else {
         window.classList.remove('open');
       }

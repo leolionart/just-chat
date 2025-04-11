@@ -56,11 +56,13 @@ export class ChatLauncher extends BaseComponent {
 
   private toggleChat() {
     this.isOpen = !this.isOpen;
-    this.dispatchEvent(new CustomEvent('toggleChat', { 
+    const event = new CustomEvent('toggleChat', { 
       detail: { isOpen: this.isOpen },
       bubbles: true,
       composed: true 
-    }));
+    });
+    this.dispatchEvent(event);
+    console.log('Chat toggle event dispatched:', this.isOpen);
   }
 
   private getChatIcon(): string {

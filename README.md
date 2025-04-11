@@ -23,7 +23,7 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 
 ```html
 <!-- Latest version -->
-<script src="https://cdn.jsdelivr.net/npm/@kieng/just-chat/dist/just-chat.umd.js"
+<script src="https://cdn.jsdelivr.net/npm/@leolionart/just-chat/dist/just-chat.umd.js"
         data-webhook-url="https://your-backend.com/chat"
         data-theme-color="#1E40AF"
         data-position="bottom-right"
@@ -35,7 +35,7 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 </script>
 
 <!-- Specific version -->
-<script src="https://cdn.jsdelivr.net/npm/@kieng/just-chat@0.1.2/dist/just-chat.umd.js"
+<script src="https://cdn.jsdelivr.net/npm/@leolionart/just-chat@0.1.5/dist/just-chat.umd.js"
         data-webhook-url="https://your-backend.com/chat"
         defer>
 </script>
@@ -45,17 +45,17 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 
 ```bash
 # Using npm
-npm install @kieng/just-chat
+npm install @leolionart/just-chat
 
 # Using pnpm
-pnpm add @kieng/just-chat
+pnpm add @leolionart/just-chat
 
 # Using yarn
-yarn add @kieng/just-chat
+yarn add @leolionart/just-chat
 ```
 
 ```javascript
-import { initChatPopup } from '@kieng/just-chat';
+import { initChatPopup } from '@leolionart/just-chat';
 
 initChatPopup({
   webhookUrl: 'https://your-backend.com/chat',
