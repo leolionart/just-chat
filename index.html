@@ -2,9 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Universal Chat Popup Demo</title>
   <style>
+    html {
+      font-size: 62.5%; /* 1rem = 10px */
+    }
+
+    body {
+      font-size: 1.6rem; /* = 16px */
+    }
+
+    input, textarea {
+      font-size: 1.6rem; /* prevent iOS zoom */
+    }
+
     body {
       font-family: system-ui, -apple-system, sans-serif;
       line-height: 1.5;
@@ -45,7 +57,7 @@
       margin-top: 0.5em;
       border: 1px solid #d1d5db;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     .demo-content {
@@ -85,6 +97,13 @@
     .status::before {
       content: "●";
       color: #059669;
+    }
+
+    .launcher {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
     }
   </style>
 </head>

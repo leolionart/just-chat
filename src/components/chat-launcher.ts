@@ -13,6 +13,10 @@ export class ChatLauncher extends BaseComponent {
       justify-content: center;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
       transition: transform 0.2s ease;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
     }
 
     .launcher:hover {
@@ -32,6 +36,25 @@ export class ChatLauncher extends BaseComponent {
     super();
     this.addStyles(this.styles);
     this.render();
+    window.addEventListener('close', () => {
+      const launcherEl = this.shadow.querySelector('.launcher') as HTMLElement;
+      if (launcherEl) {
+        launcherEl.style.visibility = 'visible';
+        launcherEl.style.opacity = '1';
+        launcherEl.style.pointerEvents = 'auto';
+      }
+    });
+    
+    window.addEventListener('toggleChat', (event: Event) => {
+      const customEvent = event as CustomEvent;
+      this.isOpen = customEvent.detail.isOpen;
+      const launcherEl = this.shadow.querySelector('.launcher') as HTMLElement;
+      if (launcherEl) {
+        launcherEl.style.visibility = this.isOpen ? 'hidden' : 'visible';
+        launcherEl.style.opacity = this.isOpen ? '0' : '1';
+        launcherEl.style.pointerEvents = this.isOpen ? 'none' : 'auto';
+      }
+    });
   }
 
   static get observedAttributes() {
@@ -49,8 +72,11 @@ export class ChatLauncher extends BaseComponent {
     
     const launcher = this.createElement('button', 'launcher');
     launcher.innerHTML = this.getChatIcon();
+    // Launcher styling is now controlled via toggle event
     launcher.addEventListener('click', () => this.toggleChat());
-    
+
+    // Removed display logic; using visibility, opacity, and pointer-events instead.
+
     this.shadow.appendChild(launcher);
   }
 
@@ -63,6 +89,7 @@ export class ChatLauncher extends BaseComponent {
     });
     this.dispatchEvent(event);
     console.log('Chat toggle event dispatched:', this.isOpen);
+
   }
 
   private getChatIcon(): string {

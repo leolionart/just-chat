@@ -57,15 +57,15 @@ export class ChatWindow extends BaseComponent {
     @media (max-width: 480px) {
       .chat-window {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         width: 100%;
         height: 100dvh;
         max-height: none;
         border-radius: 0;
         transform: translateY(100%);
+        contain: layout style;
+        touch-action: manipulation;
+        overscroll-behavior: none;
       }
       
       .chat-window.open {
@@ -79,6 +79,11 @@ export class ChatWindow extends BaseComponent {
 
       .input-area {
         padding: 12px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background-color: inherit;
       }
 
     }
@@ -149,7 +154,7 @@ export class ChatWindow extends BaseComponent {
       max-width: 85%;
       padding: 12px 16px;
       border-radius: 16px;
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.5;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
@@ -300,7 +305,7 @@ export class ChatWindow extends BaseComponent {
       padding: 12px 16px;
       border: 1px solid #e5e5e5;
       border-radius: 24px;
-      font-size: 14px;
+      font-size: 16px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -329,6 +334,48 @@ export class ChatWindow extends BaseComponent {
     .input-area button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .chat-window {
+        background: #1f1f1f;
+        color: #eee;
+      }
+
+      .messages {
+        background-color: #121212;
+      }
+
+      .message.bot {
+        background-color: #2c2c2c;
+        color: #eee;
+      }
+
+      .message.user {
+        background-color: var(--theme-color, #4f8cff);
+        color: white;
+      }
+
+      .input-area {
+        background-color: #1f1f1f;
+        border-top: 1px solid #333;
+      }
+
+      .input-area input {
+        background-color: #2c2c2c;
+        color: #eee;
+        border: 1px solid #444;
+      }
+
+      .link-preview {
+        background-color: #2c2c2c !important;
+        border-color: #444 !important;
+        color: #eee !important;
+      }
+
+      .message.bot a {
+        color: #91bfff;
+      }
     }
   `;
 
@@ -381,9 +428,9 @@ export class ChatWindow extends BaseComponent {
     }
 
     const suggestions = [
-      'Ổ cứng di động loại nào tốt?',
-      'Tôi muốn tìm hiểu về lịch sử thế giới',
-      'Làm sao để cải thiện chất lượng không khí trong nhà?',
+      'Triển khai smarthome thế nào?',
+      'Tìm hiểu về lắp đặt điện mặt trời',
+      'Triển khai các dịch vụ xem phim, giải trí tại nhà thì cần những gì?',
       'Làm thế nào để wifi trong nhà mạnh hơn?'
     ];
     suggestions.forEach(text => {
@@ -453,7 +500,7 @@ export class ChatWindow extends BaseComponent {
     // Show typing indicator
     const typingMessage: ChatMessage = {
       id: 'typing-indicator',
-      text: '...',
+      text: 'Đang tra cứu thông tin để trả lời...',
       sender: 'backend',
       timestamp: new Date().toISOString()
     };
@@ -507,21 +554,22 @@ export class ChatWindow extends BaseComponent {
 
   private createMessageElement(message: string, isUser: boolean = false): HTMLElement {
     const messageEl = this.createElement('div', `message ${isUser ? 'user' : 'bot'}`);
-    if (message === '...') {
+    if (message === 'Đang tra cứu thông tin để trả lời...') {
       messageEl.classList.add('typing');
       messageEl.innerHTML = `
-          <svg width="24" height="6" viewBox="0 0 24 6" xmlns="http://www.w3.org/2000/svg" fill="#666">
-            <circle cx="3" cy="3" r="3">
-              <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0s" />
-            </circle>
-            <circle cx="12" cy="3" r="3">
-              <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.2s" />
-            </circle>
-            <circle cx="21" cy="3" r="3">
-              <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.4s" />
-            </circle>
-          </svg>
-        `;
+        <span>Đang tra cứu thông tin để trả lời </span>
+        <svg width="24" height="6" viewBox="0 0 24 6" xmlns="http://www.w3.org/2000/svg" fill="#666">
+          <circle cx="3" cy="3" r="3">
+            <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0s" />
+          </circle>
+          <circle cx="12" cy="3" r="3">
+            <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.2s" />
+          </circle>
+          <circle cx="21" cy="3" r="3">
+            <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.4s" />
+          </circle>
+        </svg>
+      `;
     } else {
       // Clear textContent before markdown is parsed and rendered
       messageEl.textContent = '';
@@ -566,21 +614,35 @@ export class ChatWindow extends BaseComponent {
     if (message.sender !== 'user') {
       const links = messageEl.querySelectorAll('a[href]');
       links.forEach(async (link) => {
-        const preview = await this.fetchLinkPreview(link.href);
+        const anchor = link as HTMLAnchorElement;
+        const preview = await this.fetchLinkPreview(anchor.href);
         if (preview) {
           const previewEl = document.createElement('div');
           previewEl.className = 'link-preview';
           previewEl.innerHTML = `
-            <a href="${link.href}" target="_blank" style="text-decoration:none;color:inherit;">
-          <div style="display:flex;border:1px solid #ccc;border-radius:12px;overflow:hidden;margin-top:12px;padding:12px;box-sizing:border-box;gap:12px;background:#fff;">
-                <img src="${preview.image}" style="width:80px;height:80px;object-fit:cover;" />
-                <div style="flex:1;">
-                  <div style="font-weight:bold;">${preview.title}</div>
-                  <div style="font-size:13px;color:#666;">${preview.description}</div>
-                </div>
-              </div>
-            </a>
-          `;
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .preview-wrapper {
+        background: #2c2c2c !important;
+        border-color: #444 !important;
+        color: #eee !important;
+      }
+
+      .preview-wrapper div {
+        color: #aaa !important;
+      }
+    }
+  </style>
+  <a href="${anchor.href}" target="_blank" style="text-decoration:none;color:inherit;">
+    <div class="preview-wrapper" style="display:flex;border:1px solid #ccc;border-radius:12px;overflow:hidden;margin-top:12px;padding:12px;box-sizing:border-box;gap:12px;background:#fff;">
+      <img src="${preview.image}" style="width:80px;height:80px;object-fit:cover;" />
+      <div style="flex:1;">
+        <div style="font-weight:bold;">${preview.title}</div>
+        <div style="font-size:13px;color:#666;">${preview.description}</div>
+      </div>
+    </div>
+  </a>
+`;
           link.parentElement?.appendChild(previewEl);
         }
       });
@@ -643,6 +705,11 @@ export class ChatWindow extends BaseComponent {
   private close() {
     this.isOpen = false;
     this.updateVisibility();
+    this.dispatchEvent(new CustomEvent('toggleChat', {
+      detail: { isOpen: false },
+      bubbles: true,
+      composed: true
+    }));
     this.dispatchEvent(new CustomEvent('close'));
   }
 
