@@ -1,3 +1,5 @@
+declare const __VERSION__: string;
+
 import { BaseComponent } from './base-component';
 import './chat-launcher';
 import './chat-window';
@@ -38,6 +40,7 @@ export class ChatWidget extends BaseComponent {
 
   constructor() {
     super();
+    console.info('[just-chat] Version:', __VERSION__);
     this.addStyles(this.styles);
     this.render();
   }

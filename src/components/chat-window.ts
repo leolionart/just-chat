@@ -31,6 +31,28 @@ export class ChatWindow extends BaseComponent {
       transition: opacity 0.2s ease, transform 0.2s ease;
       pointer-events: none;
     }
+    .suggestion-button {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 20px;
+          padding: 10px 16px;
+          font-size: 15px;
+          font-weight: 500;
+          margin-bottom: 10px;
+          cursor: pointer;
+          text-align: left;
+          transition: background-color 0.2s;
+        }
+
+        .suggestion-button:hover {
+          background-color: #f0f0f0;
+        }
+
+        .suggestion-button::after {
+          content: '➤';
+          float: right;
+          opacity: 0.5;
+        }
 
     @media (max-width: 480px) {
       .chat-window {
@@ -40,15 +62,25 @@ export class ChatWindow extends BaseComponent {
         right: 0;
         bottom: 0;
         width: 100%;
-        height: 100vh;
+        height: 100dvh;
         max-height: none;
         border-radius: 0;
         transform: translateY(100%);
       }
-
+      
       .chat-window.open {
         transform: translateY(0);
       }
+
+      .messages {
+        padding: 12px;
+        padding-bottom: 80px;
+      }
+
+      .input-area {
+        padding: 12px;
+      }
+
     }
 
     .chat-window.open {
@@ -347,6 +379,20 @@ export class ChatWindow extends BaseComponent {
       const existingMessages = this.storage.getMessages();
       existingMessages.forEach(msg => this.renderMessage(msg, messages));
     }
+
+    const suggestions = [
+      'Ổ cứng di động loại nào tốt?',
+      'Tôi muốn tìm hiểu về lịch sử thế giới',
+      'Làm sao để cải thiện chất lượng không khí trong nhà?',
+      'Làm thế nào để wifi trong nhà mạnh hơn?'
+    ];
+    suggestions.forEach(text => {
+      const button = this.createElement('button', 'suggestion-button', text);
+      button.addEventListener('click', () => {
+        this.sendMessage(text);
+      });
+      messages.appendChild(button);
+    });
     
     // Input area
     const inputArea = this.createElement('div', 'input-area');
@@ -404,6 +450,14 @@ export class ChatWindow extends BaseComponent {
     // Add message to UI and storage
     this.storage.addMessage(message);
     this.renderMessage(message);
+    // Show typing indicator
+    const typingMessage: ChatMessage = {
+      id: 'typing-indicator',
+      text: '...',
+      sender: 'backend',
+      timestamp: new Date().toISOString()
+    };
+    this.renderMessage(typingMessage);
 
     try {
       // Send to webhook
@@ -421,6 +475,10 @@ export class ChatWindow extends BaseComponent {
       message.status = 'sent';
       this.storage.updateMessage(messageId, { status: 'sent' });
       this.updateMessageStatus(messageId, 'sent');
+
+      // Remove typing indicator
+      const typingEl = this.shadow.querySelector('[data-message-id="typing-indicator"]');
+      if (typingEl) typingEl.remove();
 
       // Add response message
       const responseMessage: ChatMessage = {
@@ -449,11 +507,29 @@ export class ChatWindow extends BaseComponent {
 
   private createMessageElement(message: string, isUser: boolean = false): HTMLElement {
     const messageEl = this.createElement('div', `message ${isUser ? 'user' : 'bot'}`);
-    // Parse markdown for bot messages only
-    if (!isUser) {
-      messageEl.innerHTML = marked.parse(message) as string;
+    if (message === '...') {
+      messageEl.classList.add('typing');
+      messageEl.innerHTML = `
+          <svg width="24" height="6" viewBox="0 0 24 6" xmlns="http://www.w3.org/2000/svg" fill="#666">
+            <circle cx="3" cy="3" r="3">
+              <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0s" />
+            </circle>
+            <circle cx="12" cy="3" r="3">
+              <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.2s" />
+            </circle>
+            <circle cx="21" cy="3" r="3">
+              <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0.4s" />
+            </circle>
+          </svg>
+        `;
     } else {
-      messageEl.textContent = message;
+      // Clear textContent before markdown is parsed and rendered
+      messageEl.textContent = '';
+      if (!isUser) {
+        messageEl.innerHTML = marked.parse(message) as string;
+      } else {
+        messageEl.textContent = message;
+      }
     }
     return messageEl;
   }
@@ -561,6 +637,9 @@ export class ChatWindow extends BaseComponent {
     const input = this.shadow.querySelector('.input-area input') as HTMLInputElement;
     if (input) {
       input.focus();
+      setTimeout(() => {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
     }
   }
 
