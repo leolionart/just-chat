@@ -526,7 +526,10 @@ export class ChatWindow extends BaseComponent {
       // Clear textContent before markdown is parsed and rendered
       messageEl.textContent = '';
       if (!isUser) {
-        messageEl.innerHTML = marked.parse(message) as string;
+        const autolink = (text: string) =>
+          text.replace(/(https?:\/\/[^\s]+)/g, url => `[${url}](${url})`);
+        const linked = autolink(message);
+        messageEl.innerHTML = marked.parse(linked) as string;
       } else {
         messageEl.textContent = message;
       }
@@ -558,8 +561,48 @@ export class ChatWindow extends BaseComponent {
 
     messages.appendChild(messageEl);
     messages.scrollTop = messages.scrollHeight;
+    
+    // If the message contains links, fetch and append link previews
+    if (message.sender !== 'user') {
+      const links = messageEl.querySelectorAll('a[href]');
+      links.forEach(async (link) => {
+        const preview = await this.fetchLinkPreview(link.href);
+        if (preview) {
+          const previewEl = document.createElement('div');
+          previewEl.className = 'link-preview';
+          previewEl.innerHTML = `
+            <a href="${link.href}" target="_blank" style="text-decoration:none;color:inherit;">
+          <div style="display:flex;border:1px solid #ccc;border-radius:12px;overflow:hidden;margin-top:12px;padding:12px;box-sizing:border-box;gap:12px;background:#fff;">
+                <img src="${preview.image}" style="width:80px;height:80px;object-fit:cover;" />
+                <div style="flex:1;">
+                  <div style="font-weight:bold;">${preview.title}</div>
+                  <div style="font-size:13px;color:#666;">${preview.description}</div>
+                </div>
+              </div>
+            </a>
+          `;
+          link.parentElement?.appendChild(previewEl);
+        }
+      });
+    }
   }
-
+  
+  private async fetchLinkPreview(url: string): Promise<{ title: string, description: string, image: string } | null> {
+    try {
+      const response = await fetch(`https://n8n.naai.studio/webhook/link-preview?url=${encodeURIComponent(url)}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      const preview = Array.isArray(data) ? data[0] : data;
+      return {
+        title: preview.title || url,
+        description: preview.description || '',
+        image: preview.image || preview.images?.[0] || ''
+      };
+    } catch {
+      return null;
+    }
+  }
+  
   private updateMessageStatus(messageId: string, status: string) {
     const messageEl = this.shadow.querySelector(`[data-message-id="${messageId}"]`);
     if (messageEl) {
