@@ -151,3 +151,13 @@ just-chat/
 └── package.json
 ```
 
+## Publishing to NPM
+1. Update the version in `package.json`
+2. Build the library
+```bash
+pnpm build
+```
+3. Publish to NPM
+```bash
+npm publish --access public
+```

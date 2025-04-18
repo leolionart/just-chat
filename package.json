@@ -35,8 +35,13 @@
     "type": "git",
     "url": "git+https://github.com/leolionart/just-chat.git"
   },
-  "author": "",
+  "author": "Leo Lion <leolionart@gmail.com>",
   "license": "MIT",
+  "description": "A lightweight, customizable chat widget that can be easily embedded into any website. Built with Web Components for maximum compatibility and style isolation.",
+  "homepage": "https://github.com/leolionart/just-chat#readme",
+  "bugs": {
+    "url": "https://github.com/leolionart/just-chat/issues"
+  },
   "dependencies": {
     "marked": "^15.0.8"
   }
