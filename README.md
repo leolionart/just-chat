@@ -2,21 +2,6 @@
 
 A lightweight, customizable chat widget that can be easily embedded into any website. Built with Web Components for maximum compatibility and style isolation.
 
-## Features
-
-- 🎨 Customizable theme and appearance
-- 💾 Local chat history persistence
-- 🔌 Simple webhook integration
-- 🎯 Zero dependencies
-- 🛡️ Style isolation via Shadow DOM
-- 📱 Responsive design
-- ⌨️ Keyboard accessible
-- 🔄 Message status indicators
-- ❌ Request cancellation support
-- 🔒 Secure by default
-- 🌐 Cross-browser compatible
-- 🚀 Small bundle size (~4KB gzipped)
-
 ## Installation
 
 ### Via CDN (Recommended)
@@ -41,34 +26,6 @@ A lightweight, customizable chat widget that can be easily embedded into any web
 </script>
 ```
 
-### Via NPM
-
-```bash
-# Using npm
-npm install @leolionart/just-chat
-
-# Using pnpm
-pnpm add @leolionart/just-chat
-
-# Using yarn
-yarn add @leolionart/just-chat
-```
-
-```javascript
-import { initChatPopup } from '@leolionart/just-chat';
-
-initChatPopup({
-  webhookUrl: 'https://your-backend.com/chat',
-  themeColor: '#1E40AF',
-  position: 'bottom-right',
-  title: 'Chat with us',
-  welcomeMessage: 'How can we help you today?',
-  history: {
-    enabled: true,
-    clearButton: true
-  }
-});
-```
 
 ## Configuration
 
@@ -129,29 +86,6 @@ Expected response format:
 }
 ```
 
-### Security Features
-
-- Content Security Policy (CSP) compatible
-- No eval() or inline scripts
-- XSS protection for message rendering
-- CORS support for webhook requests
-- Secure by default configuration
-
-### Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers
-
-### Accessibility
-
-- ARIA labels and roles
-- Keyboard navigation
-- Focus management
-- Screen reader support
-- High contrast support
 
 ## Development
 
@@ -217,27 +151,3 @@ just-chat/
 └── package.json
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-MIT
-
-## Support
-
-- GitHub Issues: [Report a bug](https://github.com/draphonix/just-chat/issues)
-- Email: hoang@kieng.io.vn
-
-## Credits
-
-Built with:
-- TypeScript
-- Web Components
-- Vite
-- Express (mock server)# just-chat
