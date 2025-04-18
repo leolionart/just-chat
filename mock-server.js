@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import axios from 'axios';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -25,6 +26,22 @@ app.post('/chat', (req, res) => {
     });
   }, 1000);
 });
+
+app.get('/url', async (req, res) => {
+  const { url } = req.query;
+  if (!url) {
+    return res.status(400).send('URL parameter is required');
+  }
+
+  try {
+    const response = await axios.get(url);
+    res.send(response.data);
+  } catch (error) {
+    console.error('Error fetching URL:', error);
+    res.status(500).send('Error fetching URL');
+  }
+});
+
 
 const port = 3000;
 app.listen(port, () => {

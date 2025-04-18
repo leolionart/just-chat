@@ -117,20 +117,6 @@ pnpm dev
 pnpm build
 ```
 
-### Testing the Widget
-
-1. Start the mock server
-```bash
-pnpm start
-```
-
-2. Open http://localhost:3000 in your browser
-3. Try the demo features:
-   - Send messages
-   - Cancel messages
-   - Clear history
-   - Change theme color
-   - Test responsiveness
 
 ### Project Structure
 

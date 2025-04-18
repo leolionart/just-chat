@@ -5,6 +5,7 @@ import { marked } from 'marked';
 marked.setOptions({});
 import { StorageService, ChatMessage } from '../services/storage';
 import { WebhookService } from '../services/webhook';
+import './link-preview';
 
 export class ChatWindow extends BaseComponent {
   static get observedAttributes() {
@@ -677,7 +678,7 @@ export class ChatWindow extends BaseComponent {
       messageEl.textContent = '';
       if (!isUser) {
         const autolink = (text: string) =>
-          text.replace(/(https?:\/\/[^\s]+)/g, url => `[${url}](${url})`);
+          text.replace(/(https?:\/\/[\S]+)/g, url => `[${url}](${url})`);
         const linked = autolink(message);
         messageEl.innerHTML = marked.parse(linked) as string;
       } else {
@@ -712,70 +713,53 @@ export class ChatWindow extends BaseComponent {
     messages.appendChild(messageEl);
     messages.scrollTop = messages.scrollHeight;
     
-    // If the message contains links, fetch and append link previews
-    if (message.sender !== 'user') {
-      const links = messageEl.querySelectorAll('a[href]');
-      links.forEach(async (link) => {
-        const anchor = link as HTMLAnchorElement;
-        const preview = await this.fetchLinkPreview(anchor.href);
-        if (preview) {
-          const previewEl = document.createElement('div');
-          previewEl.className = 'link-preview';
-          previewEl.innerHTML = `
-  <style>
-    @media (prefers-color-scheme: dark) {
-      .preview-wrapper {
-        background: #2c2c2c !important;
-        border-color: #444 !important;
-        color: #eee !important;
+   
+    const extractUrls = (text: string): string[] => {
+      const urlRegex = /(https?:\/\/[\S]+)/g;
+      const urls = text.match(urlRegex);
+      return urls ? urls : [];
+    };
+    const urls = extractUrls(message.text);
+    
+    if (urls.length > 0) {
+        urls.forEach(async (url) => {
+          const preview = await this.fetchLinkPreview(url);
+          if(preview){
+            const previewEl = document.createElement('link-preview');
+            previewEl.setAttribute('url', url);
+            previewEl.setAttribute('title', preview.title);
+            previewEl.setAttribute('description', preview.description);
+            previewEl.setAttribute('image', preview.image);
+            messageEl.appendChild(previewEl);
+          }
+        });
       }
-
-      .preview-wrapper div {
-        color: #aaa !important;
-      }
-    }
-  </style>
-  <a href="${anchor.href}" target="_blank" style="text-decoration:none;color:inherit;">
-    <div class="preview-wrapper" style="display:flex;border:1px solid #ccc;border-radius:12px;overflow:hidden;margin-top:12px;padding:12px;box-sizing:border-box;gap:12px;background:#fff;">
-      <img src="${preview.image}" style="width:80px;height:80px;object-fit:cover;" />
-      <div style="flex:1;">
-        <div style="font-weight:bold;">${preview.title}</div>
-        <div style="font-size:13px;color:#666;">${preview.description}</div>
-      </div>
-    </div>
-  </a>
-`;
-          link.parentElement?.appendChild(previewEl);
-        }
-      });
-    }
   }
   
   private static linkPreviewCache: Map<string, { title: string, description: string, image: string } | null> = new Map();
   private async fetchLinkPreview(url: string): Promise<{ title: string, description: string, image: string } | null> {
-    if (ChatWindow.linkPreviewCache.has(url)) {
-      return ChatWindow.linkPreviewCache.get(url) ?? null;
-    }
-    try {
-      const response = await fetch(`https://n8n.naai.studio/webhook/link-preview?url=${encodeURIComponent(url)}`);
-      if (!response.ok) {
-        ChatWindow.linkPreviewCache.set(url, null);
-        return null;
+      if (ChatWindow.linkPreviewCache.has(url)) {
+        return ChatWindow.linkPreviewCache.get(url) ?? null;
       }
-      const data = await response.json();
-      const preview = Array.isArray(data) ? data[0] : data;
-      const result = {
-        title: preview.title || url,
-        description: preview.description || '',
-        image: preview.image || preview.images?.[0] || ''
-      };
-      ChatWindow.linkPreviewCache.set(url, result);
-      return result;
-    } catch {
+    try {      
+      const response = await fetch(`/url?url=${encodeURIComponent(url)}`);
+      if (response.ok) {
+          const data = await response.json();
+          const titleMatch = data.match(/<title[^>]*>([^<]+)<\/title>/);
+          const descriptionMatch = data.match(/<meta[^>]*name="description"[^>]*content="([^"]+)"/i);
+          const imageMatch = data.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i);
+          const result = {
+            title: titleMatch ? titleMatch[1] : url,
+            description: descriptionMatch ? descriptionMatch[1] : '',
+          image: imageMatch ? imageMatch[1] : '',
+          };
+          ChatWindow.linkPreviewCache.set(url, result);
+          return result;        
+        }      
+    } finally {
       ChatWindow.linkPreviewCache.set(url, null);
       return null;
-    }
-  }
+    }}
   
   private updateMessageStatus(messageId: string, status: string) {
     const messageEl = this.shadow.querySelector(`[data-message-id="${messageId}"]`);

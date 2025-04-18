@@ -1,4 +1,5 @@
 import './components/chat-widget';
+import './components/link-preview';
 
 // Export for NPM package
 export function initChatPopup(config: {
