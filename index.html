@@ -131,6 +131,11 @@
         Welcome Message:
         <input type="text" id="welcomeMessage">
       </label>
+
+      <!-- Dark mode toggle button -->
+      <button id="toggleDarkMode" type="button" style="margin-top:1em;padding:0.5em 1em;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;">
+        🌙 Dark Mode
+      </button>
     </div>
 
     <div class="demo-content">
@@ -154,6 +159,24 @@
 
   <script type="module">
     import { initChatPopup } from '/src/main.ts';
+    
+    // Dark mode toggle logic
+    const darkModeBtn = document.getElementById('toggleDarkMode');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('demo-theme', theme);
+      darkModeBtn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+    // Load theme from localStorage or system preference
+    const savedTheme = localStorage.getItem('demo-theme');
+    if (savedTheme === 'dark' || (savedTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setTheme('dark');
+    } else {
+      setTheme('light');
+    }
+    darkModeBtn.addEventListener('click', () => {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
     
     // Initialize with default values
     let widget = initChatPopup({
@@ -191,3 +214,42 @@
   </script>
 </body>
 </html>
+<style>
+  [data-theme="dark"] body {
+    background-color: #18181b;
+    color: #e5e7eb;
+  }
+  [data-theme="dark"] .demo-controls,
+  [data-theme="dark"] .demo-content {
+    background: #23232a;
+    color: #e5e7eb;
+    border-color: #333843;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  [data-theme="dark"] .status {
+    background-color: #222b26;
+    color: #6ee7b7;
+  }
+  [data-theme="dark"] .status::before {
+    color: #34d399;
+  }
+  [data-theme="dark"] .demo-controls input,
+  [data-theme="dark"] .demo-controls input[type="color"] {
+    background: #23232a;
+    color: #e5e7eb;
+    border-color: #333843;
+  }
+  [data-theme="dark"] .demo-controls label {
+    color: #cbd5e1;
+  }
+  [data-theme="dark"] h1,
+  [data-theme="dark"] h2 {
+    color: #e0e7ef;
+  }
+  [data-theme="dark"] .demo-content ul {
+    color: #a1a1aa;
+  }
+  [data-theme="dark"] .launcher {
+    /* If you want to style the launcher in dark mode, add rules here */
+  }
+</style>

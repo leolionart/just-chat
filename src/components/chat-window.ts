@@ -172,7 +172,80 @@ export class ChatWindow extends BaseComponent {
       border-bottom-left-radius: 0;
     }
 
-    /* Markdown styles */
+    /* Add dark mode support for chat window */
+    :host([data-theme="dark"]) .chat-window,
+    [data-theme="dark"] .chat-window {
+      background: #18181b;
+      color: #f3f4f6;
+    }
+    :host([data-theme="dark"]) .messages,
+    [data-theme="dark"] .messages {
+      background-color: #18181b;
+    }
+    :host([data-theme="dark"]) .message.bot,
+    [data-theme="dark"] .message.bot {
+      background-color: #23232a;
+      color: #f3f4f6;
+    }
+    :host([data-theme="dark"]) .message.user,
+    [data-theme="dark"] .message.user {
+      background-color: #2563eb;
+      color: #fff;
+    }
+    :host([data-theme="dark"]) .input-area,
+    [data-theme="dark"] .input-area {
+      background-color: #23232a;
+      border-top: 1px solid #333843;
+    }
+    :host([data-theme="dark"]) .input-area input,
+    [data-theme="dark"] .input-area input {
+      background-color: #18181b;
+      color: #f3f4f6;
+      border: 1px solid #333843;
+    }
+    :host([data-theme="dark"]) .input-area button,
+    [data-theme="dark"] .input-area button {
+      background-color: #2563eb;
+      color: #fff;
+    }
+    :host([data-theme="dark"]) .suggestion-button,
+    [data-theme="dark"] .suggestion-button {
+      background: #23232a;
+      color: #f3f4f6;
+      border-color: #333843;
+    }
+    :host([data-theme="dark"]) .suggestion-button:hover,
+    [data-theme="dark"] .suggestion-button:hover {
+      background: #18181b;
+    }
+    :host([data-theme="dark"]) .message-status,
+    [data-theme="dark"] .message-status {
+      color: #cbd5e1;
+    }
+    :host([data-theme="dark"]) .cancel-button,
+    [data-theme="dark"] .cancel-button {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    :host([data-theme="dark"]) .message.system,
+    [data-theme="dark"] .message.system {
+      background-color: #23232a;
+      color: #a1a1aa;
+    }
+    :host([data-theme="dark"]) .message.bot code,
+    [data-theme="dark"] .message.bot code {
+      background-color: #27272a;
+      color: #facc15;
+    }
+    :host([data-theme="dark"]) .message.bot pre,
+    [data-theme="dark"] .message.bot pre {
+      background-color: #23232a;
+      color: #f3f4f6;
+    }
+    :host([data-theme="dark"]) .message.bot a,
+    [data-theme="dark"] .message.bot a {
+      color: #60a5fa;
+    }
     .message.bot h1,
     .message.bot h2,
     .message.bot h3,
@@ -283,6 +356,7 @@ export class ChatWindow extends BaseComponent {
     .cancel-button {
       font-size: 12px;
       padding: 2px 6px;
+      color:rgb(255, 255, 255);
       background: rgba(0, 0, 0, 0.1);
       border: none;
       border-radius: 4px;
@@ -338,17 +412,17 @@ export class ChatWindow extends BaseComponent {
 
     @media (prefers-color-scheme: dark) {
       .chat-window {
-        background: #1f1f1f;
-        color: #eee;
+        background: #18181b;
+        color: #f3f4f6;
       }
 
       .messages {
-        background-color: #121212;
+        background-color: #18181b;
       }
 
       .message.bot {
-        background-color: #2c2c2c;
-        color: #eee;
+        background-color: #23232a;
+        color: #f3f4f6;
       }
 
       .message.user {
@@ -392,6 +466,24 @@ export class ChatWindow extends BaseComponent {
     this.webhook = new WebhookService(webhookUrl);
     this.sessionId = crypto.randomUUID();
     this.addStyles(this.styles);
+  }
+
+  connectedCallback() {
+    // --- Dark mode sync ---
+    const syncTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      if (theme === 'dark') {
+        this.setAttribute('data-theme', 'dark');
+      } else {
+        this.removeAttribute('data-theme');
+      }
+    };
+    syncTheme();
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    (this as any)._themeObserver = observer;
+    // --- End dark mode sync ---
+
     this.render();
   }
 
@@ -483,73 +575,83 @@ export class ChatWindow extends BaseComponent {
   }
 
   private async sendMessage(text: string) {
-    const messageId = crypto.randomUUID();
-    const timestamp = new Date().toISOString();
-    
-    const message: ChatMessage = {
-      id: messageId,
-      text,
-      sender: 'user',
-      timestamp,
-      status: 'sending'
-    };
-
-    // Add message to UI and storage
-    this.storage.addMessage(message);
-    this.renderMessage(message);
-    // Show typing indicator
-    const typingMessage: ChatMessage = {
-      id: 'typing-indicator',
-      text: 'Đang tra cứu thông tin ...',
-      sender: 'backend',
-      timestamp: new Date().toISOString()
-    };
-    this.renderMessage(typingMessage);
-
-    try {
-      // Send to webhook
-      const response = await this.webhook.sendMessage({
-        message: text,
+      const messageId = crypto.randomUUID();
+      const timestamp = new Date().toISOString();
+      
+      const message: ChatMessage = {
+        id: messageId,
+        text,
+        sender: 'user',
         timestamp,
-        sessionId: this.sessionId,
-        context: {
-          url: window.location.href
-        },
-        history: this.storage.getMessages().slice(-10) // Send last 10 messages
-      });
-
-      // Update message status
-      message.status = 'sent';
-      this.storage.updateMessage(messageId, { status: 'sent' });
-      this.updateMessageStatus(messageId, 'sent');
-
-      // Remove typing indicator
-      const typingEl = this.shadow.querySelector('[data-message-id="typing-indicator"]');
-      if (typingEl) typingEl.remove();
-
-      // Add response message
-      const responseMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        text: response.output,
+        status: 'sending'
+      };
+  
+      // Add message to storage immediately
+      this.storage.addMessage(message);
+      this.renderMessage(message);
+  
+      // Remove any existing typing indicator before adding a new one
+      const oldTyping = this.shadow.querySelector('[data-message-id="typing-indicator"]');
+      if (oldTyping) oldTyping.remove();
+  
+      // Add typing indicator (always use "Đang tra cứu thông tin ...")
+      const typingMessage: ChatMessage = {
+        id: 'typing-indicator',
+        text: 'Đang tra cứu thông tin ...',
         sender: 'backend',
         timestamp: new Date().toISOString()
       };
-      
-      this.storage.addMessage(responseMessage);
-      this.renderMessage(responseMessage);
+      this.renderMessage(typingMessage);
+  
+      try {
+        // Send to webhook
+        const response = await this.webhook.sendMessage({
+          message: text,
+          timestamp,
+          sessionId: this.sessionId,
+          // messageId, // Remove this line, not in WebhookRequest type
+          context: {
+            url: window.location.href
+          }
+        });
+  
+        // Update message status
+        message.status = 'sent';
+        this.storage.updateMessage(messageId, { status: 'sent' });
+        this.updateMessageStatus(messageId, 'sent'); // <-- Add this line
 
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Request cancelled') {
-        message.status = 'cancelled';
-        this.storage.updateMessage(messageId, { status: 'cancelled' });
-        this.updateMessageStatus(messageId, 'cancelled');
-      } else {
-        message.status = 'error';
-        this.storage.updateMessage(messageId, { status: 'error' });
-        this.updateMessageStatus(messageId, 'error');
-        this.addSystemMessage('Failed to send message. Please try again.');
+        // Remove typing indicator
+        const typingEl = this.shadow.querySelector('[data-message-id="typing-indicator"]');
+        if (typingEl) typingEl.remove();
+
+        // Add response message
+        const responseMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          text: response.output,
+          sender: 'backend',
+          timestamp: new Date().toISOString(),
+          // replyTo: messageId // <-- Remove this line
+        };
+        
+        this.storage.addMessage(responseMessage);
+        this.renderMessage(responseMessage);
+  
+      } catch (error) {
+        // Remove typing indicator on error as well
+        const typingEl = this.shadow.querySelector('[data-message-id="typing-indicator"]');
+        if (typingEl) typingEl.remove();
+  
+        if (error instanceof Error && error.message === 'Request cancelled') {
+          message.status = 'cancelled';
+          this.storage.updateMessage(messageId, { status: 'cancelled' });
+          this.updateMessageStatus(messageId, 'cancelled');
+        } else {
+          message.status = 'error';
+          this.storage.updateMessage(messageId, { status: 'error' });
+          this.updateMessageStatus(messageId, 'error');
+          this.addSystemMessage('Failed to send message. Please try again.');
+        }
       }
-    }
   }
 
   private createMessageElement(message: string, isUser: boolean = false): HTMLElement {
