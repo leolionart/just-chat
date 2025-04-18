@@ -751,18 +751,28 @@ export class ChatWindow extends BaseComponent {
     }
   }
   
+  private static linkPreviewCache: Map<string, { title: string, description: string, image: string } | null> = new Map();
   private async fetchLinkPreview(url: string): Promise<{ title: string, description: string, image: string } | null> {
+    if (ChatWindow.linkPreviewCache.has(url)) {
+      return ChatWindow.linkPreviewCache.get(url) ?? null;
+    }
     try {
       const response = await fetch(`https://n8n.naai.studio/webhook/link-preview?url=${encodeURIComponent(url)}`);
-      if (!response.ok) return null;
+      if (!response.ok) {
+        ChatWindow.linkPreviewCache.set(url, null);
+        return null;
+      }
       const data = await response.json();
       const preview = Array.isArray(data) ? data[0] : data;
-      return {
+      const result = {
         title: preview.title || url,
         description: preview.description || '',
         image: preview.image || preview.images?.[0] || ''
       };
+      ChatWindow.linkPreviewCache.set(url, result);
+      return result;
     } catch {
+      ChatWindow.linkPreviewCache.set(url, null);
       return null;
     }
   }
