@@ -500,7 +500,7 @@ export class ChatWindow extends BaseComponent {
     // Show typing indicator
     const typingMessage: ChatMessage = {
       id: 'typing-indicator',
-      text: 'Đang tra cứu thông tin để trả lời...',
+      text: 'Đang tra cứu thông tin ...',
       sender: 'backend',
       timestamp: new Date().toISOString()
     };
@@ -554,10 +554,10 @@ export class ChatWindow extends BaseComponent {
 
   private createMessageElement(message: string, isUser: boolean = false): HTMLElement {
     const messageEl = this.createElement('div', `message ${isUser ? 'user' : 'bot'}`);
-    if (message === 'Đang tra cứu thông tin để trả lời...') {
+    if (message === 'Đang tra cứu thông tin ...') {
       messageEl.classList.add('typing');
       messageEl.innerHTML = `
-        <span>Đang tra cứu thông tin để trả lời </span>
+        <span>Đang tra cứu thông tin </span>
         <svg width="24" height="6" viewBox="0 0 24 6" xmlns="http://www.w3.org/2000/svg" fill="#666">
           <circle cx="3" cy="3" r="3">
             <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" begin="0s" />
